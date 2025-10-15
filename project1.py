@@ -28,19 +28,63 @@ file_path = "C:/Users/emerm/OneDrive/Desktop/SI 201/fall25-project1-emersonmckay
 data = read_csv_file(file_path)
 
 def calculate_avg_yield_by_crop(data):
-    print("placeholder")
+    # will return a dict with crop and avg yield for crop 
+    totals = {}
+    counts = {}
+    
+    for row in data:
+        crop = row["Crop"]
+        yield_value = float(row["Yield_tons_per_hectare"])
+        totals[crop] = totals.get(crop, 0.0) + yield_value
+        counts[crop] = counts.get(crop, 0) + 1
+
+    averages = {}
+    for crop in totals:
+        averages[crop] = totals[crop] / counts[crop]
+    return averages 
 
 
 # ************ TEST CASES ************
-class TestingCalculation(unittest.Testcase):
+class TestingAvgYieldByCrop(unittest.TestCase):
     def test_calculate_avg_yield_by_crop(self):
         data = [
             {"Crop": "Wheat", "Yield_tons_per_hectare": 5.0},
             {"Crop": "Wheat", "Yield_tons_per_hectare": 9.5},
-            {"Crop": "Ricet", "Yield_tons_per_hectare": 4.0},
+            {"Crop": "Rice", "Yield_tons_per_hectare": 4.0}
         ]
 
         result = calculate_avg_yield_by_crop(data)
         self.assertEqual(result["Wheat"], 7.25)
         self.assertEqual(result["Rice"], 4.0)
     
+    def test_single_row(self):
+        data = [
+            {"Crop": "Soybean", "Yield_tons_per_hectare": 2.0},
+            {"Crop": "Cotton", "Yield_tons_per_hectare": 9.0}
+        ]
+
+        result = calculate_avg_yield_by_crop(data)
+        self.assertEqual(result["Soybean"], 2.0)
+        self.assertEqual(result["Cotton"], 9.0)
+
+    def test_string_yields(self):
+        data = [
+            {"Crop": "Barley", "Yield_tons_per_hectare": "5.5"},
+            {"Crop": "Barley", "Yield_tons_per_hectare": "6.5"}
+        ]
+
+        result = calculate_avg_yield_by_crop(data)
+        self.assertEqual(result["Barley"], 6.0)
+
+    
+    def test_zeroes(self):
+        data = [
+            {"Crop": "Maize", "Yield_tons_per_hectare": 0.0},
+            {"Crop": "Maize", "Yield_tons_per_hectare": 2.0},
+        ]
+
+        result = calculate_avg_yield_by_crop(data)
+        self.assertEqual(result["Maize"], 1.0)
+
+if __name__ == "__main__":
+    unittest.main()
