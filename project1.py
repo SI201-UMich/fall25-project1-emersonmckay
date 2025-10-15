@@ -1,5 +1,6 @@
 # Emerson McKay
 # umid: 68460607
+# email: emckayy@umich.edu
 # collaborators: 
 
 
