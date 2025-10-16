@@ -66,6 +66,20 @@ def calculate_avg_yield_by_fertilizer(data):
             averages[crop][fert] = totals[crop][fert] / count[crop][fert]
     return averages
 
+def compare_avgs(avg_crop, avg_fertilizer):
+    comparison = {}
+    for crop, fert_data in avg_fertilizer.items():
+        true_yield = fert_data.get("True")
+        false_yield = fert_data.get("False")
+
+        if true_yield > false_yield:
+            comparison[crop] = "The crops that used fertilizer had higher yields on average."
+        elif true_yield < false_yield:
+            comparison[crop] = "The crops that did not use fertilizer had higher yields on average."
+        else:
+            comparison[crop] = "There is no difference between crops that used fertilizer and those that did not."
+
+    return comparison 
 
 # ************ TEST CASES ************
 class TestingAvgYieldByCrop(unittest.TestCase):
