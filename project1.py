@@ -126,7 +126,20 @@ class TestingAvgYieldByCrop(unittest.TestCase):
         result = calculate_avg_yield_by_crop(data)
         self.assertEqual(result["Maize"], 1.0)
 
-class TestingYieldByFertilizer(unittest.TestCase):
+    def write_avg_by_crop(results, filename):
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write("Crop, Average_Yield\n")
+            for crop, avg in results.items():
+                f.write(f"{crop}, {avg:.2f}\n")
+
+    def write_avg_by_fertilizer(results, filename):
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write("Crop, Fertilizer_Used, Average_yield\n")
+            for crop, fert_dict in results.items():
+                for fert, avg in fert_dict.items():
+                    f.write(f"{crop}, {fert}, {avg:.2f}\n")
+
+class TestingCalculations(unittest.TestCase):
     # general test to see if function is doing what it should
     def test_calculate_avg_yield_by_fertilizer(self):
         data = [
@@ -185,6 +198,40 @@ class TestingYieldByFertilizer(unittest.TestCase):
         self.assertAlmostEqual(result["Barley"]["True"], 8.0, places=9)
         self.assertNotIn("False", result["Barley"])
 
+
+def main():
+    # reading dataset
+    file_path = "C:/Users/emerm/OneDrive/Desktop/SI 201/fall25-project1-emersonmckay/crop_yield.csv"
+    data = read_csv_file(file_path)
+
+    # characterizing dataset
+    print("Variables in dataset:", list(data[0].keys()))
+    print("Number of rows:", len(data))
+
+    # calculations
+    avg_by_crop = calculate_avg_yield_by_crop(data)
+    avg_by_fert = calculate_avg_yield_by_fertilizer(data)
+
+    print("\nAverage yield by crop:")
+    for crop, avg in avg_by_crop.items():
+        print(f" {crop}: {avg:.2f} tons/ha")
+    
+    print("\n Average yield by crop and fertilizer use:")
+    for crop, ferts in avg_by_fert.items():
+        for fert, avg in ferts.items():
+            print(f" {crop} | Fertilizer = {fert}: {avg:.2f} tons/ha")
+
+    # compare
+    comparison = compare_avgs(avg_by_crop, avg_by_fert)
+    print("\nComparison of fertilizer impact:")
+    for crop, result in comparison.items():
+        print(f" {crop}: {result}")
+    
+    # write to files
+
+
 if __name__ == "__main__":
 
     unittest.main()
+
+main() 
