@@ -1,7 +1,8 @@
 # Emerson McKay
 # umid: 68460607
 # email: emckayy@umich.edu
-# collaborators: 
+# collaborators: I used ChatGPT with help with debugging and explaining why my code wasn't working the way I intended.
+# I also used ChatGPT to help me fix parts of functions I was struggling with and rewrite them to be more cohesive and work the way I intended. 
 
 
 import csv
@@ -23,9 +24,6 @@ def read_csv_file(filename):
         data.append(row_dict)
 
     return data
-
-file_path = "C:/Users/emerm/OneDrive/Desktop/SI 201/fall25-project1-emersonmckay/crop_yield.csv"
-data = read_csv_file(file_path)
 
 def calculate_avg_yield_by_crop(data):
     # will return a dict with crop and avg yield for crop 
@@ -81,6 +79,28 @@ def compare_avgs(avg_crop, avg_fertilizer):
 
     return comparison 
 
+def write_summary_csv(avg_by_crop, avg_by_fert, filename): 
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write("Crop, Overall Average Yield, Average Yield for Fertilizer Used, Average Yield for Not Using Fertilizer, Difference Between Fertilizer Used vs Not Used\n")
+        for crop in avg_by_crop:
+            overall = avg_by_crop[crop]
+            true_yield = avg_by_fert.get(crop, {}).get("True")
+            false_yield = avg_by_fert.get(crop, {}).get("False")
+
+            # calculate difference safely
+            if true_yield is not None and false_yield is not None:
+                diff = true_yield - false_yield
+            else:
+                diff = None
+
+            # round everything to 2 decimals when writing
+            overall_str = f"{overall:.2f}"
+            true_str = f"{true_yield:.2f}" if true_yield is not None else ""
+            false_str = f"{false_yield:.2f}" if false_yield is not None else ""
+            diff_str = f"{diff:.2f}" if diff is not None else ""
+
+            f.write(f"{crop},{overall_str},{true_str},{false_str},{diff_str}\n")
+
 # ************ TEST CASES ************
 class TestingAvgYieldByCrop(unittest.TestCase):
     # general test to make sure function is working the way it should
@@ -125,19 +145,6 @@ class TestingAvgYieldByCrop(unittest.TestCase):
 
         result = calculate_avg_yield_by_crop(data)
         self.assertEqual(result["Maize"], 1.0)
-
-    def write_avg_by_crop(results, filename):
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write("Crop, Average_Yield\n")
-            for crop, avg in results.items():
-                f.write(f"{crop}, {avg:.2f}\n")
-
-    def write_avg_by_fertilizer(results, filename):
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write("Crop, Fertilizer_Used, Average_yield\n")
-            for crop, fert_dict in results.items():
-                for fert, avg in fert_dict.items():
-                    f.write(f"{crop}, {fert}, {avg:.2f}\n")
 
 class TestingCalculations(unittest.TestCase):
     # general test to see if function is doing what it should
@@ -202,6 +209,8 @@ class TestingCalculations(unittest.TestCase):
 def main():
     # reading dataset
     file_path = "C:/Users/emerm/OneDrive/Desktop/SI 201/fall25-project1-emersonmckay/crop_yield.csv"
+    output_path = "C:/Users/emerm/OneDrive/Desktop/SI 201/fall25-project1-emersonmckay/yield_summary.csv"
+
     data = read_csv_file(file_path)
 
     # characterizing dataset
@@ -228,10 +237,13 @@ def main():
         print(f" {crop}: {result}")
     
     # write to files
+    write_summary_csv(avg_by_crop, avg_by_fert, output_path)
 
 
 if __name__ == "__main__":
+    RUN_TESTS = False   # ← set True to run tests, False to run the program
 
-    unittest.main()
-
-main() 
+    if RUN_TESTS:
+        unittest.main()
+    else:
+        main()
